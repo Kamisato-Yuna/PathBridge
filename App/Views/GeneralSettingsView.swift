@@ -47,6 +47,9 @@ struct GeneralSettingsView: View {
                 Text("建议将签名后的应用放入“应用程序”后再启用。应用仅常驻菜单栏，不显示 Dock 图标。")
                     .font(.caption).foregroundStyle(.secondary)
             }
+            Section("软件更新") {
+                UpdateSettingsView(checker: state.updates)
+            }
             Section("配置文件") {
                 Text(state.settings.fileURL.path).font(.caption).textSelection(.enabled)
                 Button("在 Finder 中显示") { NSWorkspace.shared.activateFileViewerSelecting([state.settings.fileURL]) }

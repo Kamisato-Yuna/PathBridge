@@ -5,6 +5,7 @@ import ServiceManagement
 
 @MainActor @Observable
 final class AppState {
+    let updates = UpdateChecker()
     let settings = SettingsStore()
     let volumes = VolumeManager()
     private let hotkeys = HotkeyManager()

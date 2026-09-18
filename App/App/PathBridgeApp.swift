@@ -20,6 +20,7 @@ struct PathBridgeApp: App {
                 Link("GitHub · Kamisato-Yuna/PathBridge",
                      destination: URL(string: "https://github.com/Kamisato-Yuna/PathBridge")!)
                 Link("MIT License", destination: URL(string: "https://github.com/Kamisato-Yuna/PathBridge/blob/main/LICENSE")!)
+                UpdateSettingsView(checker: state.updates)
                 Text("Copyright © 2026 Yuna Kamisato").font(.caption).foregroundStyle(.secondary)
             }
             .padding(32).frame(width: 380)

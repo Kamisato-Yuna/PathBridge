@@ -69,6 +69,9 @@ struct MenuBarView: View {
             Text(state.hotkeyError ?? state.status)
                 .font(.caption).foregroundStyle(state.hotkeyError == nil ? Color.secondary : .orange)
                 .lineLimit(3).textSelection(.enabled)
+            if let update = state.updates.available {
+                Link("发现新版本 \(update.version) · 前往下载", destination: update.url)
+            }
             Divider()
             HStack {
                 Button("设置…", systemImage: "gearshape") {

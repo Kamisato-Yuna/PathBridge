@@ -35,6 +35,14 @@ PATHBRIDGE_SIGNING_IDENTITY=- ./script/build_and_run.sh
 
 账号支持 `DOMAIN\username`。在编辑窗口勾选“将账号凭据保存在钥匙串”可保存该映射的专属账号与密码。“设置 → 主凭据”可保存、更新或删除通用 SMB 账号。凭据优先级为 **映射专属凭据 → 主凭据 → macOS 系统认证**；未配置映射时也会使用主凭据。密码不写入 JSON 或 SMB URL，也不随配置导出。已有 SMB 会话会被复用，修改凭据不会主动断开现有挂载。
 
+## 检查更新
+
+应用默认在启动后检查 [GitHub Releases](https://github.com/Kamisato-Yuna/PathBridge/releases)，每 24 小时最多自动请求一次（应用运行时每小时检查是否到期）。在“通用 → 软件更新”或“关于”中可关闭自动检查，也可随时手动检查。
+
+发现新版后，菜单栏、设置和关于窗口提供 Release 下载页面入口，由用户下载并手动安装。检查仅请求公开 Release 元数据，不发送剪贴板、存储路径或凭据，不需要 GitHub 令牌。GitHub 会收到正常网络请求信息，包括 IP 地址和应用版本 User-Agent。
+
+更新源使用 [GitHub 最新正式 Release API](https://docs.github.com/en/rest/releases/releases#get-the-latest-release)，忽略草稿和预发布。版本标签需为 `v0.1.0` 或 `0.1.0` 这样的三段数字；只推送 Git tag 不会触发更新。仓库尚无正式 Release 时显示“暂无更新的正式版本”；离线或限流时显示检查失败，手动检查可重试。
+
 ## 配置与路径规则
 
 配置保存在 `~/Library/Application Support/PathBridge/configuration.json`，使用原子写入。示例见 `Resources/example-config.json`。导入会先验证并提示替换现有配置；损坏配置会被保留，不自动覆盖。

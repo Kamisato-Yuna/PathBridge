@@ -51,3 +51,10 @@
 - 2026-09-17：使用 `PATHBRIDGE_SIGNING_IDENTITY=- ./script/test.sh`，13 项 XCTest 通过。
 - 使用相同签名覆盖执行 `./script/build_and_run.sh --build`，Debug 应用构建成功，关于窗口纳入编译。
 - 本轮未重新运行真实 SMB、钥匙串写入或 UI 交互验证。
+
+## GitHub 更新检查验证
+
+- `swift test`：17 项通过，含数字版本比较、稳定版筛选、无 Release、HTTP 失败及下载链接边界。
+- Debug 应用构建通过；设置页版本改为读取应用元数据。
+- 真实 GitHub latest Release API 返回 404（当前尚无正式 Release），该状态按“暂无更新的正式版本”处理。
+- 初次开源提交的 GitHub CI 已通过；本轮没有发布用于测试的虚构 Release，也没有自动下载或安装应用。

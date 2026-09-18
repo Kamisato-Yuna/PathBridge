@@ -24,7 +24,7 @@ struct SettingsView: View {
         .frame(minWidth: 760, minHeight: 540)
         .safeAreaInset(edge: .bottom) {
             HStack {
-                Text("PathBridge 1.0 · 配置中不包含密码").font(.caption).foregroundStyle(.secondary)
+                Text("PathBridge \(UpdateChecker.currentVersion) · 配置中不包含密码").font(.caption).foregroundStyle(.secondary)
                 Spacer()
                 Button("导入配置…") { importPresented = true }
                 Button("导出配置…") { exportPresented = true }
