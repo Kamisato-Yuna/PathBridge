@@ -1,0 +1,21 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: 工具链版本
+        run: xcodebuild -version && swift --version
+      - name: 核心测试
+        run: swift test
+      - name: 构建应用
+        env:
+          PATHBRIDGE_SIGNING_IDENTITY: '-'
+        run: ./script/build_and_run.sh --build

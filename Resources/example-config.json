@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "hotkey": {
+    "key": "O",
+    "command": true,
+    "option": true,
+    "control": false,
+    "shift": false
+  },
+  "storages": [
+    {
+      "id": "projects",
+      "name": "项目共享",
+      "windowsDrive": "O:",
+      "server": "files.example.com",
+      "share": "Projects",
+      "subpath": "",
+      "mountPath": "/Volumes/Projects"
+    },
+    {
+      "id": "render-output",
+      "name": "渲染输出",
+      "windowsDrive": "R:",
+      "server": "render.example.com",
+      "share": "Production",
+      "subpath": "RenderOutput",
+      "mountPath": "/Volumes/Production/RenderOutput"
+    }
+  ]
+}

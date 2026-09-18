@@ -1,0 +1,17 @@
+.DS_Store
+.build/
+build/
+dist/
+*.xcuserstate
+xcuserdata/
+.swiftpm/
+
+# 本机代理配置及私密材料
+.codex/
+.env
+.env.*
+!.env.example
+*.p12
+*.pfx
+*.key
+*.mobileprovision
