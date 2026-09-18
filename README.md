@@ -4,7 +4,9 @@
 
 [![CI](https://github.com/Kamisato-Yuna/PathBridge/actions/workflows/ci.yml/badge.svg)](https://github.com/Kamisato-Yuna/PathBridge/actions/workflows/ci.yml) · **v0.1.0** · [MIT](LICENSE) · [问题反馈](https://github.com/Kamisato-Yuna/PathBridge/issues)
 
-当前为早期版本，源码可自行构建；尚未提供经过 Apple 公证的正式安装包。
+[下载 PathBridge 0.1.0 DMG](https://github.com/Kamisato-Yuna/PathBridge/releases/download/v0.1.0/PathBridge-0.1.0.dmg) · [发布说明](https://github.com/Kamisato-Yuna/PathBridge/releases/tag/v0.1.0)
+
+支持 macOS 15.7+、Intel 和 Apple Silicon；发布的应用与 DMG 均已使用 Developer ID 签名、通过 Apple 公证并附加票据。打开 DMG，将 PathBridge 拖入 Applications 后启动。
 
 Swift 6 + SwiftUI 原生 macOS 菜单栏工具，支持 macOS 15.7 及以上。用于 Windows 盘符、UNC 和 macOS 网络卷路径之间的转换。应用启动不弹出主窗口，也不显示 Dock 图标。
 
@@ -97,7 +99,7 @@ macOS 首次实际访问网络文件可能显示“PathBridge 想要访问网络
 
 工程使用 Swift 6 严格并发、macOS 15.7 deployment target、Hardened Runtime；使用本机 Yuna Kamisato 的 Developer ID Application 证书（Team `852H844JG2`）手动签名。主应用没有启用 App Sandbox，以便读取用户指定的网络卷路径和调用系统 NetFS；Finder 扩展独立启用 App Sandbox，仅传递用户选择的本地路径。更换开发者时在 Xcode 的 Signing & Capabilities 中修改团队和证书，或通过 `PATHBRIDGE_SIGNING_IDENTITY` 与 `PATHBRIDGE_DEVELOPMENT_TEAM` 环境变量覆盖脚本签名设置；本地开发可使用 `PATHBRIDGE_SIGNING_IDENTITY=-`。
 
-`dist/PathBridge.app` 是本机签名构建，不代表已完成 Apple 公证或公开发布。登录时启动使用系统 `SMAppService.mainApp`，可能需要用户在系统设置中允许。
+自行执行 `package.sh` 得到的是本机签名构建，仍需另行公证；GitHub Release 的 DMG 已完成公证。登录时启动使用系统 `SMAppService.mainApp`，可能需要用户在系统设置中允许。
 
 独立核心也可执行 `swift test`。`Tests/Integration/Smoke.swift` 是需手动运行的真实 SMB/钥匙串验证程序，不属于默认测试，也不包含真实账号密码；`script/build_smoke.sh` 在完成 Debug 构建后编译它。集成程序不会向 SMB 写入文件，真实连接及本机配置/钥匙串写入需使用者明确授权。
 

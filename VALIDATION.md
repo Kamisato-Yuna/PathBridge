@@ -83,3 +83,14 @@
 - `swift test`：31 项通过；关于页移除长说明、改用仓库和许可按钮，并显示真实应用图标。
 - 主应用及 Finder 扩展均包含 Intel / Apple Silicon 架构，Developer ID 签名与 Hardened Runtime 保持启用，递归严格签名校验通过。
 - 签名 DMG 已生成，`hdiutil verify` 通过；Apple 公证及 GitHub Release 发布仍待公证凭据配置，尚未宣称完成。
+
+## 0.1.0 正式分发验证（2026-09-18）
+
+- 修正 Release 签名：主应用与 Finder 扩展使用安全时间戳，不包含 `get-task-allow`；保留 Hardened Runtime 和扩展 App Sandbox。
+- 打包脚本显式指定 Release 输出目录，避免本机 Xcode 自定义目录导致复制旧产物。
+- 应用公证 Accepted：`7199d84d-5751-4cc4-acb3-d2e2100d31f2`。
+- DMG 公证 Accepted：`3ecee30b-c7e0-4df4-991d-0332c92bfc09`。
+- App 和 DMG 均完成 stapler staple / validate；Gatekeeper 均返回 `accepted / Notarized Developer ID`。
+- 只读挂载最终 DMG，再次验证其中的 App 签名和公证票据；版本为 0.1.0，包含 Applications 安装快捷入口。
+- 此前 31 项核心测试通过；本轮为签名、打包与发布验证，没有重新操作真实 SMB 或钥匙串业务凭据。
+- 以上正式分发结果取代早期记录中的“未公证”状态，历史记录保留供追溯。
