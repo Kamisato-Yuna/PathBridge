@@ -143,6 +143,79 @@ final class PathBridgeCoreTests: XCTestCase {
         XCTAssertThrowsError(try ClipboardParser.parse("https://example.com/file"))
     }
 
+    func testClipboardCandidatesExtractNaturalLanguagePathsInOrder() throws {
+        let text = #"""
+        请打开 \\files.example.com\共享目录\镜头 一\最终 文件.hip，然后查看 smb://files.example.com/share/Project%20%E4%B8%AD%E6%96%87.hip；最后打开 /Volumes/share/中文 项目/shot 01.hip。
+        下一行是 file:///Volumes/share/文件%20二.hip 和 storage://share/项目%20三。
+        """#
+
+        XCTAssertEqual(
+            try ClipboardParser.candidates(in: text),
+            [
+                #"\\files.example.com\共享目录\镜头 一\最终 文件.hip"#,
+                "smb://files.example.com/share/Project%20%E4%B8%AD%E6%96%87.hip",
+                "/Volumes/share/中文 项目/shot 01.hip",
+                "file:///Volumes/share/文件%20二.hip",
+                "storage://share/项目%20三"
+            ]
+        )
+    }
+
+    func testClipboardCandidatesSupportQuotesAdjacentSymbolsAndDeduplicate() throws {
+        let text = #"【'/Volumes/共享目录/镜头 01/最终 文件.hip'】、("C:\Project\shot one.hip")；'/Volumes/共享目录/镜头 01/最终 文件.hip'。"#
+
+        XCTAssertEqual(
+            try ClipboardParser.candidates(in: text),
+            [
+                "/Volumes/共享目录/镜头 01/最终 文件.hip",
+                #"C:\Project\shot one.hip"#
+            ]
+        )
+    }
+
+    func testClipboardCandidatesKeepPunctuationInsideQuotes() throws {
+        XCTAssertEqual(
+            try ClipboardParser.candidates(in: #""/Volumes/share/shot;v2 (final).hip""#),
+            ["/Volumes/share/shot;v2 (final).hip"]
+        )
+    }
+
+    func testClipboardCandidatesKeepAmbiguousUnquotedSpacesIntact() throws {
+        XCTAssertEqual(
+            try ClipboardParser.candidates(in: "请打开 /Volumes/share/项目 文件/shot 01.hip 之后确认"),
+            ["/Volumes/share/项目 文件/shot 01.hip 之后确认"]
+        )
+    }
+
+    func testClipboardCandidatesPreserveSinglePathPunctuationAndSeparateMultipleRoots() throws {
+        let completePath = #"/Volumes/share/foo,bar (final).hip?draft"#
+        XCTAssertEqual(try ClipboardParser.candidates(in: completePath), [completePath])
+        XCTAssertEqual(
+            try ClipboardParser.candidates(in: "请处理 /Volumes/share/foo,bar.hip 和 /Volumes/share/next.hip"),
+            ["/Volumes/share/foo,bar.hip", "/Volumes/share/next.hip"]
+        )
+        XCTAssertEqual(
+            try ClipboardParser.candidates(in: "smb://server/share/file?download=1"),
+            ["smb://server/share/file?download=1"]
+        )
+        XCTAssertThrowsError(try ClipboardParser.candidates(in: "https://example.com/a")) { error in
+            XCTAssertEqual(error as? PathResolverError, .invalidClipboardText)
+        }
+    }
+
+    func testClipboardCandidatesRejectNoCandidateAndPreserveCompletePath() throws {
+        XCTAssertEqual(
+            try ClipboardParser.candidates(in: #"/Volumes/share/中文 文件.hip"#),
+            [#"/Volumes/share/中文 文件.hip"#]
+        )
+        XCTAssertThrowsError(try ClipboardParser.candidates(in: "请打开网页 https://example.com/file")) { error in
+            XCTAssertEqual(error as? PathResolverError, .invalidClipboardText)
+        }
+        XCTAssertThrowsError(try ClipboardParser.candidates(in: "   \n\t  ")) { error in
+            XCTAssertEqual(error as? PathResolverError, .emptyInput)
+        }
+    }
+
     func testMappingValidationRejectsAmbiguityAndUnsafeRoots() {
         XCTAssertThrowsError(try MappingValidator.validate([share, share]))
         XCTAssertThrowsError(try MappingValidator.validate([

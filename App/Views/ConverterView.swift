@@ -11,8 +11,9 @@ struct ConverterView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             Text("同一个位置，不同的路径").font(.title2.bold())
-            Text("输入完整路径即可预览转换，无需连接 SMB。").foregroundStyle(.secondary)
-            TextField("O:\\Project\\file.hip 或 \\\\server\\share\\…", text: $input)
+            Text("输入路径或含有路径的聊天文本即可预览；多条路径会提示选择，无需连接 SMB。").foregroundStyle(.secondary)
+            TextField("O:\\Project\\file.hip 或包含路径的文字", text: $input, axis: .vertical)
+                .lineLimit(2...5)
                 .textFieldStyle(.roundedBorder).onSubmit(convert)
             HStack {
                 Button("读取剪贴板") {
@@ -43,6 +44,9 @@ struct ConverterView: View {
 
     private func convert() {
         outputs = []; errorText = nil; copied = nil
+        do { input = try ClipboardService.path(in: input) }
+        catch is CancellationError { return }
+        catch { errorText = error.localizedDescription; return }
         do {
             let resolved = try state.resolve(input)
             for (name, format) in [("macOS", PathFormat.macOS), ("Windows 盘符", .windowsDrive), ("UNC", .unc), ("Storage", .storage), ("SMB", .smb)] {

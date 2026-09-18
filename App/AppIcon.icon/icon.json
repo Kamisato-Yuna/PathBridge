@@ -1,0 +1,33 @@
+{
+  "color-space-for-untagged-svg-colors": "display-p3",
+  "fill": {
+    "automatic-gradient": "extended-srgb:0.03529,0.34510,0.84706,1.00000"
+  },
+  "groups": [
+    {
+      "layers": [
+        {
+          "fill": "automatic",
+          "glass": true,
+          "hidden": false,
+          "image-name": "bridge.svg",
+          "name": "路径与端点",
+          "opacity": 1,
+          "blend-mode": "plus-lighter"
+        }
+      ],
+      "name": "PathBridge",
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.45
+      },
+      "translucency": {
+        "enabled": true,
+        "value": 0.18
+      }
+    }
+  ],
+  "supported-platforms": {
+    "squares": "shared"
+  }
+}

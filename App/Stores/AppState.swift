@@ -5,6 +5,7 @@ import ServiceManagement
 
 @MainActor @Observable
 final class AppState {
+    static let shared = AppState()
     let updates = UpdateChecker()
     let settings = SettingsStore()
     let volumes = VolumeManager()
@@ -99,14 +100,52 @@ final class AppState {
         Task {
             do {
                 await volumes.refresh()
-                let path = try resolve(ClipboardService.read())
-                let output: String
-                if format == .windowsDrive,
-                   settings.configuration.storages.first(where: { $0.id == path.storageID })?.windowsDrive == nil {
-                    output = try render(path, as: .unc)
-                } else { output = try render(path, as: format) }
+                let output = try convertedPath(ClipboardService.read(), as: format)
                 try ClipboardService.write(output)
                 status = "已复制：\(output)"
+            } catch { report(error) }
+        }
+    }
+
+    func convertedPath(_ input: String, as format: PathFormat) throws -> String {
+        do {
+            let path = try resolve(input)
+            let hasDrive = settings.configuration.storages.first(where: { $0.id == path.storageID })?.windowsDrive != nil
+            return try render(path, as: format == .windowsDrive && !hasDrive ? .unc : format)
+        } catch PathResolverError.mappingNotFound {
+            if format == .macOS, input.hasPrefix("/Volumes/") { return input }
+            let url = try unmappedSMBURL(input)
+            if format == .smb { return url.absoluteString }
+            guard format == .unc || format == .windowsDrive,
+                  let server = url.host, let share = url.pathComponents.dropFirst().first else {
+                throw PathResolverError.mappingNotFound(input)
+            }
+            let mapping = StorageMapping(id: "mounted", name: share, server: server,
+                                         share: share, mountPath: "/Volumes/" + share)
+            let resolver = PathResolver(mappings: [mapping])
+            return try resolver.render(resolver.resolve(url.absoluteString), as: .unc)
+        }
+    }
+
+    func handleFinderCommand(_ command: FinderCommand) {
+        if command.action == .open {
+            openPath(command.paths[0])
+            return
+        }
+        let format: PathFormat
+        switch command.action {
+        case .copyMacOS: format = .macOS
+        case .copyWindows: format = .windowsDrive
+        case .copyUNC: format = .unc
+        case .copySMB: format = .smb
+        case .open: return
+        }
+        Task {
+            do {
+                await volumes.refresh()
+                let outputs = try command.paths.map { try convertedPath($0, as: format) }
+                try ClipboardService.write(outputs.joined(separator: "\n"))
+                status = "已从 Finder 复制 \(outputs.count) 条路径"
             } catch { report(error) }
         }
     }
@@ -115,6 +154,11 @@ final class AppState {
         guard !isOpening else { return }
         let input: String
         do { input = try ClipboardService.read() } catch { report(error); return }
+        openPath(input)
+    }
+
+    func openPath(_ input: String) {
+        guard !isOpening else { return }
         isOpening = true
         status = "正在解析路径…"
         Task {
@@ -151,7 +195,7 @@ final class AppState {
                         throw AppError.message("Finder 无法定位此文件，请确认共享仍然可用。")
                     }
                 }
-                status = "已在 Finder 中打开：\(target.lastPathComponent)"
+                status = kind ? "已打开目录：\(target.lastPathComponent)" : "已在 Finder 中定位文件：\(target.lastPathComponent)"
             } catch { report(error) }
         }
     }
@@ -165,6 +209,7 @@ final class AppState {
     }
 
     func report(_ error: Error) {
+        if error is CancellationError { status = "已取消"; return }
         status = error.localizedDescription
         let alert = NSAlert()
         alert.messageText = "PathBridge"

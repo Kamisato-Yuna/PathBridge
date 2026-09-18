@@ -13,4 +13,10 @@
     <key>LSUIElement</key><true/>
     <key>NSPrincipalClass</key><string>NSApplication</string>
     <key>NSHighResolutionCapable</key><true/>
+    <key>NSNetworkVolumesUsageDescription</key><string>PathBridge 需要判断网络路径是文件还是文件夹，以便在 Finder 中定位文件或打开目录。</string>
+    <key>CFBundleURLTypes</key><array><dict>
+        <key>CFBundleURLName</key><string>com.yuna.PathBridge.finder</string>
+        <key>CFBundleURLSchemes</key><array><string>pathbridge</string></array>
+        <key>CFBundleTypeRole</key><string>Viewer</string>
+    </dict></array>
 </dict></plist>

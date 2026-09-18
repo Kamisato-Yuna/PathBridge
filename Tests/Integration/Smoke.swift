@@ -11,6 +11,27 @@ struct Smoke {
         do {
             let arguments = CommandLine.arguments
             guard arguments.count >= 2 else { throw AppError.message("Usage: smoke seed <configuration.json> | inspect | mount <storage-id>") }
+            if arguments[1] == "mount-table-tests" {
+                let fixtures: [(String, String, String)] = [
+                    ("//DOMAIN;test@example.com/share", "example.com", "share"),
+                    ("//test%40example.com@example.com/中文%20目录", "example.com", "中文 目录"),
+                    ("//example.com/a%2520b", "example.com", "a%20b"),
+                    ("//test@[2001:db8::1]/share", "[2001:db8::1]", "share")
+                ]
+                for (source, server, share) in fixtures {
+                    let parsed = SMBMountSnapshot.parse(source: source, mountPath: "/Volumes/literal%20name")
+                    guard parsed?.server == server, parsed?.share == share, parsed?.path == "/Volumes/literal%20name" else {
+                        throw AppError.message("Mount table decoding fixture failed.")
+                    }
+                }
+                for source in ["//example.com/share/subdir", "//example.com/a%2Fb", "//example.com/%FF", "//example.com/..", "//example.com/"] {
+                    guard SMBMountSnapshot.parse(source: source, mountPath: "/Volumes/test") == nil else {
+                        throw AppError.message("Invalid mount source was accepted.")
+                    }
+                }
+                print("PASS: mount table decoding, credential removal, literal mount names and invalid sources")
+                return
+            }
             let store = SettingsStore()
             if arguments[1] == "primary-from-storage" {
                 guard arguments.count == 3, let saved = try CredentialStore.read(storageID: arguments[2]) else {

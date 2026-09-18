@@ -2,7 +2,8 @@ import SwiftUI
 
 @main
 struct PathBridgeApp: App {
-    @State private var state = AppState()
+    @NSApplicationDelegateAdaptor(PathBridgeAppDelegate.self) private var appDelegate
+    @State private var state = AppState.shared
 
     var body: some Scene {
         MenuBarExtra("PathBridge", systemImage: "point.topleft.down.to.point.bottomright.curvepath") {
@@ -11,19 +12,7 @@ struct PathBridgeApp: App {
         .menuBarExtraStyle(.window)
 
         Window("关于 PathBridge", id: "about") {
-            VStack(spacing: 14) {
-                Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
-                    .font(.system(size: 44)).foregroundStyle(.tint)
-                Text("PathBridge").font(.title.bold())
-                Text("版本 \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "未知")")
-                Text("让路径跨越系统").foregroundStyle(.secondary)
-                Link("GitHub · Kamisato-Yuna/PathBridge",
-                     destination: URL(string: "https://github.com/Kamisato-Yuna/PathBridge")!)
-                Link("MIT License", destination: URL(string: "https://github.com/Kamisato-Yuna/PathBridge/blob/main/LICENSE")!)
-                UpdateSettingsView(checker: state.updates)
-                Text("Copyright © 2026 Yuna Kamisato").font(.caption).foregroundStyle(.secondary)
-            }
-            .padding(32).frame(width: 380)
+            AboutView(checker: state.updates)
         }
         .windowResizability(.contentSize)
         .defaultLaunchBehavior(.suppressed)

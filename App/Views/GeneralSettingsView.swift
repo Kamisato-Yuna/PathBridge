@@ -1,10 +1,12 @@
 import SwiftUI
 import ServiceManagement
+import FinderSync
 
 struct GeneralSettingsView: View {
     let state: AppState
     @State private var shortcut = HotkeyConfiguration()
     @State private var savedMessage: String?
+    @State private var finderEnabled = FIFinderSyncController.isExtensionEnabled
 
     var body: some View {
         Form {
@@ -47,6 +49,12 @@ struct GeneralSettingsView: View {
                 Text("建议将签名后的应用放入“应用程序”后再启用。应用仅常驻菜单栏，不显示 Dock 图标。")
                     .font(.caption).foregroundStyle(.secondary)
             }
+            Section("Finder 扩展") {
+                Label(finderEnabled ? "已启用" : "尚未启用", systemImage: finderEnabled ? "checkmark.circle.fill" : "info.circle")
+                Text("在 /Volumes 下的文件或目录上右键，使用 PathBridge 复制 macOS、Windows、UNC 或 SMB 路径。支持多选批量复制。")
+                    .font(.caption).foregroundStyle(.secondary)
+                Button("管理 Finder 扩展") { FIFinderSyncController.showExtensionManagementInterface() }
+            }
             Section("软件更新") {
                 UpdateSettingsView(checker: state.updates)
             }
@@ -59,5 +67,8 @@ struct GeneralSettingsView: View {
         .formStyle(.grouped)
         .onAppear { shortcut = state.settings.configuration.hotkey }
         .onChange(of: state.settings.configuration.hotkey) { _, newValue in shortcut = newValue }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            finderEnabled = FIFinderSyncController.isExtensionEnabled
+        }
     }
 }
