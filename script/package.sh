@@ -6,7 +6,7 @@ if [[ -n "${PATHBRIDGE_SIGNING_IDENTITY:-}" ]]; then
 fi
 cd "$(dirname "$0")/.."
 xcodebuild -project PathBridge.xcodeproj -scheme PathBridge -configuration Release \
-  -derivedDataPath build -destination 'generic/platform=macOS' ONLY_ACTIVE_ARCH=NO "${SIGNING_ARGS[@]}" build
+  -derivedDataPath build -destination 'generic/platform=macOS' ONLY_ACTIVE_ARCH=NO CONFIGURATION_BUILD_DIR="$PWD/build/Build/Products/Release" "${SIGNING_ARGS[@]}" build
 mkdir -p dist
 ditto build/Build/Products/Release/PathBridge.app dist/PathBridge.app
 codesign --verify --deep --strict --verbose=2 dist/PathBridge.app
